@@ -1,0 +1,168 @@
+CompileFlags:
+  CompilationDatabase: "build"
+  Add:
+    - -Wall
+    - -Wextra
+    - -Wpedantic
+    - -Wshadow
+    - -Wconversion
+    - -Wsign-conversion
+    - -Wnull-dereference
+    - -Wdouble-promotion
+    - -Wformat=2
+    - -Wimplicit-fallthrough
+    - -Wcast-align
+    - -Wcast-qual
+    - -Wundef
+    - -Wdocumentation # checks doc comments (used by MrDocs) against the code
+
+  # GCC-only flags that clang (and therefore clangd) rejects.
+  Remove:
+    - -Wuseless-cast
+    - -Wmisleading-indentation
+    - -fcoroutines
+    - -fmodules-ts
+    - -fconcepts-diagnostics-depth=*
+    - -fno-fat-lto-objects
+    - -Wduplicated-cond
+    - -Wduplicated-branches
+    - -Wlogical-op
+    - -Wuse-after-free=*
+    - -Wmaybe-unintialized
+
+Diagnostics:
+  UnusedIncludes: Strict
+  MissingIncludes: Strict
+  ClangTidy:
+    # Checks that exist for both languages. (C++-only checks are skipped by
+    # clang-tidy on C files anyway, but the C++ style groups live in part 2.)
+    Add:
+      - bugprone-*
+      - cert-*
+      - clang-analyzer-*
+      - concurrency-*
+      - misc-*
+      - performance-*
+      - portability-*
+      - readability-*
+    Remove:
+      - misc-no-recursion
+      - clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+    CheckOptions:
+      bugprone-easily-swappable-parameters.MinimumLength: "3"
+      readability-magic-numbers.IgnoredIntegerValues: "0;1;2"
+      readability-function-cognitive-complexity.Threshold: "15"
+      readability-identifier-length.MinimumVariableNameLength: "3"
+      readability-identifier-length.MinimumParameterNameLength: "3"
+      readability-identifier-length.MinimumLoopCounterNameLength: "1"
+
+      # Naming shared by C and C++ (function and enum-constant style differ, see below).
+      readability-identifier-naming.StructCase: CamelCase
+      readability-identifier-naming.EnumCase: CamelCase
+      readability-identifier-naming.VariableCase: lower_case
+      readability-identifier-naming.ParameterCase: lower_case
+      readability-identifier-naming.GlobalConstantCase: CamelCase
+      readability-identifier-naming.GlobalConstantPrefix: k
+      readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+
+Index:
+  Background: Build
+  StandardLibrary: Yes
+
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+  Designators: Yes
+  BlockEnd: No
+
+Hover:
+  ShowAKA: Yes
+
+Completion:
+  AllScopes: Yes
+  ArgumentLists: FullPlaceholders
+  HeaderInsertion: IWYU
+
+---
+# C++23 files
+If:
+  PathMatch: .*\.(cpp|cc|cxx|hpp)$
+CompileFlags:
+  Add:
+    - -std=c++23
+    - -Wold-style-cast
+    - -Woverloaded-virtual
+    - -Wnon-virtual-dtor
+    - -Wextra-semi
+    - -Wzero-as-null-pointer-constant
+    - -Wdeprecated-copy-with-user-provided-dtor
+    - -Wmove
+    - -Wrange-loop-construct
+Diagnostics:
+  ClangTidy:
+    Add:
+      - cppcoreguidelines-*
+      - google-*
+      - modernize-*
+    Remove:
+      - cppcoreguidelines-owning-memory
+        # Keep remove since it's already enabled in "readability-magic-numbers"
+      - cppcoreguidelines-avoid-magic-numbers
+      - google-readability-todo
+    CheckOptions:
+      cppcoreguidelines-explicit-virtual-functions.IgnoreDestructors: "true"
+      misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: "true"
+
+      # Naming follows the Google C++ style guide.
+      readability-identifier-naming.NamespaceCase: lower_case
+      readability-identifier-naming.ClassCase: CamelCase
+      readability-identifier-naming.EnumConstantCase: CamelCase
+      readability-identifier-naming.EnumConstantPrefix: k
+      readability-identifier-naming.FunctionCase: CamelCase
+      readability-identifier-naming.ClassMemberSuffix: _
+      readability-identifier-naming.PrivateMemberSuffix: _
+      readability-identifier-naming.ProtectedMemberSuffix: _
+      readability-identifier-naming.ConstexprVariableCase: CamelCase
+      readability-identifier-naming.ConstexprVariablePrefix: k
+
+---
+# C23 files
+If:
+  PathMatch: .*\.(c|h)$
+CompileFlags:
+  Add:
+    - -std=c23
+    - -Wstrict-prototypes
+    - -Wold-style-definition
+    - -Wmissing-prototypes
+    - -Wbad-function-cast
+    - -Wnested-externs
+    - -Wc23-extensions
+  # In case the flags were inferred from a C++ file (e.g. a new file that
+  # Meson has not picked up yet): drop its C++-only flags.
+  Remove:
+    - -Wold-style-cast
+    - -Woverloaded-virtual
+    - -Wnon-virtual-dtor
+    - -Wextra-semi
+    - -Wzero-as-null-pointer-constant
+    - -Wdeprecated-copy-with-user-provided-dtor
+    - -Wmove
+    - -Wrange-loop-construct
+Diagnostics:
+  ClangTidy:
+    CheckOptions:
+      # C style: lower_case functions (practice_section, stack_push) and
+      # UPPER_CASE enum constants.
+      readability-identifier-naming.FunctionCase: lower_case
+      readability-identifier-naming.EnumConstantCase: UPPER_CASE
+
+---
+# C headers: clangd guesses a header's language from neighbouring files, so say it
+# explicitly (a .h next to C++ code would otherwise be parsed as C++).
+If:
+  PathMatch: .*\.h$
+CompileFlags:
+  Add:
+    - -xc-header

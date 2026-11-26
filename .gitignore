@@ -1,0 +1,40 @@
+# Build output (any ecosystem)
+build/
+build-*/
+target/
+dist/
+out/
+zig-out/
+.zig-cache/
+.gradle/
+node_modules/
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.class
+
+# Editors and language servers
+compile_commands.json
+.clangd/
+.cache/
+.idea/
+.vscode/
+.helix/
+.zed/
+*.swp
+*~
+.DS_Store
+
+# Local overrides
+.mise.local.toml
+mise.local.toml
+
+*.log
