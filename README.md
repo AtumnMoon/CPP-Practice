@@ -5,8 +5,8 @@ A console system where users can log in with a PIN, check balances, deposit/with
 
 ## Task
 
-Person A (Accounts & File Storage): Handles PIN verification, balance math (preventing overdrafts), and reading/writing account records to a text file so data persists after closing.
+Owen (Accounts & File Storage): Handles PIN verification, balance math (preventing overdrafts), and reading/writing account records to a text file so data persists after closing.
 
-Person B (ATM Terminal): Builds the login screen, menu navigation, receipt formatting, and input checks (preventing negative deposits).
+Moon (ATM Terminal): Builds the login screen, menu navigation, receipt formatting, and input checks (preventing negative deposits).
 
 Key Concepts: File input/output (fstream), std::vector, structs, and defensive input validation.
