@@ -1,0 +1,12 @@
+option(
+  'sanitizers',
+  type: 'feature',
+  value: 'auto',
+  description: 'Debug builds: ASan/UBSan where the toolchain supports them (auto = best effort)',
+)
+option(
+  'native',
+  type: 'boolean',
+  value: false,
+  description: 'Release builds: tune for the build machine (-march=native). Not portable!',
+)
